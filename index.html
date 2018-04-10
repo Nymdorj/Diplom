@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <script src="./node_modules/web3/dist/web3.min.js"></script>
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="qrcode.js"></script>
+    <script type="text/javascript" src="aes.js"></script>
+    <script type="text/javascript" src="aes-ctr.js"></script>
+  </head>
+  <body onload="load()">
+    <div class="container">
+      <!-- <div id="overlay"> -->
+        <!-- <img id="loader" src="https://loading.io/spinners/double-ring/lg.double-ring-spinner.gif"> -->
+      <!-- </div> -->
+      <h1 style="text-align: center;">Diplom Insert</h1>
+      <h2 id="diplom" style="width: 100%;"></h2>
+
+      <label for="address" class="col-lg-2 control-label">Address</label>
+      <input id="address" type="text" style="width: 100%;">
+
+      <label for="private" class="col-lg-2 control-label">Private Key</label>
+      <input id="private" type="text" style="width: 100%;">
+
+      <label for="name" class="col-lg-2 control-label">Name</label>
+      <input id="name" type="text" style="width: 100%;">
+
+      <label for="name" class="col-lg-2 control-label">Diplom ID</label>
+      <input id="diplomN" type="text" style="width: 100%;">
+
+      <label for="name" class="col-lg-2 control-label">Degree</label>
+      <input id="degree" type="text" style="width: 100%;">
+
+      <label for="name" class="col-lg-2 control-label">Student Type</label>
+      <input id="studentType" type="text" style="width: 100%;">
+
+      <label for="name" class="col-lg-2 control-label">Program</label>
+      <input id="program" type="text" style="width: 100%;">
+
+      <label for="name" class="col-lg-2 control-label">Year</label>
+      <input id="year" type="text" style="width: 100%;">
+
+      <label for="name" class="col-lg-2 control-label">Grade Average</label>
+      <input id="gradeAverage" type="text" style="width: 100%;">
+
+      <label for="name" class="col-lg-2 control-label">GPA</label>
+      <input id="gpa" type="text" style="width: 100%;">
+      <button id="button">Insert Diplom</button>
+      <div id="qrcode" style="width:300px; height:300px; text-align: center;"></div>
+      <button id='print'>Print QR</button>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="jsencrypt.js"></script>
+
+    <script>
+      //QR Code start
+      var qrcode = new QRCode(document.getElementById("qrcode"), {
+      	width : 300,
+      	height : 300
+      });
+
+      function makeCode () {
+      	var elText = document.getElementById("private");
+
+      	if (!elText.value) {
+      		alert("Input a text");
+      		elText.focus();
+      		return;
+      	}
+
+      	qrcode.makeCode(elText.value);
+      }
+
+      $("#private").
+      	on("blur", function () {
+      		makeCode();
+      	}).
+      	on("keydown", function (e) {
+      		if (e.keyCode == 13) {
+      			makeCode();
+      		}
+      	});
+      //QR Code end
+      let crypt = null;
+      let privateKey = null;
+      let pubKey = null;
+      let password = null;
+
+      if(typeof web3 !== 'undefined'){
+        web3 = new Web3(web3.currentProvider);
+      }else{
+        web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+      }
+
+      web3.eth.defaultAccount = web3.eth.accounts[0];
+
+      var DiplomContract = web3.eth.contract([
+      	{
+      		"constant": true,
+      		"inputs": [],
+      		"name": "countDiploms",
+      		"outputs": [
+      			{
+      				"name": "",
+      				"type": "uint256"
+      			}
+      		],
+      		"payable": false,
+      		"stateMutability": "view",
+      		"type": "function"
+      	},
+      	{
+      		"constant": false,
+      		"inputs": [
+      			{
+      				"name": "_address",
+      				"type": "bytes32"
+      			},
+      			{
+      				"name": "_password",
+      				"type": "bytes32"
+      			},
+      			{
+      				"name": "_fName",
+      				"type": "bytes32"
+      			},
+      			{
+      				"name": "_diplomN",
+      				"type": "bytes32"
+      			},
+      			{
+      				"name": "_degree",
+      				"type": "bytes32"
+      			},
+      			{
+      				"name": "_studentType",
+      				"type": "bytes32"
+      			},
+      			{
+      				"name": "_program",
+      				"type": "bytes32"
+      			},
+      			{
+      				"name": "_year",
+      				"type": "bytes32"
+      			},
+      			{
+      				"name": "_gradeAverage",
+      				"type": "bytes32"
+      			},
+      			{
+      				"name": "_gpa",
+      				"type": "bytes32"
+      			}
+      		],
+      		"name": "setDiplom",
+      		"outputs": [],
+      		"payable": false,
+      		"stateMutability": "nonpayable",
+      		"type": "function"
+      	},
+      	{
+      		"constant": true,
+      		"inputs": [],
+      		"name": "getDiploms",
+      		"outputs": [
+      			{
+      				"name": "",
+      				"type": "bytes32[]"
+      			}
+      		],
+      		"payable": false,
+      		"stateMutability": "view",
+      		"type": "function"
+      	},
+      	{
+      		"constant": true,
+      		"inputs": [
+      			{
+      				"name": "_address",
+      				"type": "bytes32"
+      			}
+      		],
+      		"name": "getDiplom",
+      		"outputs": [
+      			{
+      				"name": "",
+      				"type": "bytes32"
+      			},
+      			{
+      				"name": "",
+      				"type": "bytes32"
+      			},
+      			{
+      				"name": "",
+      				"type": "bytes32"
+      			},
+      			{
+      				"name": "",
+      				"type": "bytes32"
+      			},
+      			{
+      				"name": "",
+      				"type": "bytes32"
+      			},
+      			{
+      				"name": "",
+      				"type": "bytes32"
+      			}
+      		],
+      		"payable": false,
+      		"stateMutability": "view",
+      		"type": "function"
+      	},
+      	{
+      		"constant": true,
+      		"inputs": [
+      			{
+      				"name": "_address",
+      				"type": "bytes32"
+      			}
+      		],
+      		"name": "getOwner",
+      		"outputs": [
+      			{
+      				"name": "",
+      				"type": "bytes32"
+      			},
+      			{
+      				"name": "",
+      				"type": "bytes32"
+      			},
+      			{
+      				"name": "",
+      				"type": "bytes32"
+      			}
+      		],
+      		"payable": false,
+      		"stateMutability": "view",
+      		"type": "function"
+      	},
+      	{
+      		"constant": true,
+      		"inputs": [
+      			{
+      				"name": "",
+      				"type": "uint256"
+      			}
+      		],
+      		"name": "diplomAccts",
+      		"outputs": [
+      			{
+      				"name": "",
+      				"type": "bytes32"
+      			}
+      		],
+      		"payable": false,
+      		"stateMutability": "view",
+      		"type": "function"
+      	},
+      	{
+      		"anonymous": false,
+      		"inputs": [
+      			{
+      				"indexed": false,
+      				"name": "name",
+      				"type": "bytes32"
+      			},
+      			{
+      				"indexed": false,
+      				"name": "password",
+      				"type": "bytes32"
+      			},
+      			{
+      				"indexed": false,
+      				"name": "diplomN",
+      				"type": "bytes32"
+      			},
+      			{
+      				"indexed": false,
+      				"name": "degree",
+      				"type": "bytes32"
+      			},
+      			{
+      				"indexed": false,
+      				"name": "studentType",
+      				"type": "bytes32"
+      			},
+      			{
+      				"indexed": false,
+      				"name": "program",
+      				"type": "bytes32"
+      			},
+      			{
+      				"indexed": false,
+      				"name": "year",
+      				"type": "bytes32"
+      			},
+      			{
+      				"indexed": false,
+      				"name": "gradeAverage",
+      				"type": "bytes32"
+      			},
+      			{
+      				"indexed": false,
+      				"name": "gpa",
+      				"type": "bytes32"
+      			}
+      		],
+      		"name": "dEvent",
+      		"type": "event"
+      	}
+      ]);
+
+      var Diplom = DiplomContract.at('0x3c38c83722bde4e00e25816030699b4ba01bfd18');
+
+      var diplomEvent = Diplom.dEvent();
+
+      diplomEvent.watch(function(error, result){
+        if(!error){
+          $("#loader").hide();
+        }else{
+          $("#loader").hide();
+        }
+      });
+
+      $("#button").click(function(){
+        makeCode();
+        var encrpassword = RSAencrypt(password, pubKey);
+
+        var address = $('#address').val();
+        var txtName = $('#name').val();
+        var txtDiplomN = $('#diplomN').val();
+        var txtDegree = $('#degree').val();
+        var txtStudentType = $('#studentType').val();
+        var txtProgram = $('#program').val();
+        var txtYear = $('#year').val();
+        var txtGradeAverage = $('#gradeAverage').val();
+        var txtGPA = $('#gpa').val();
+
+        var encrName = AesCtr.encrypt(txtName, password, 256);
+        var encrDiplomN = AesCtr.encrypt(txtDiplomN, password, 256);
+        var encrDegree = AesCtr.encrypt(txtDegree, password, 256);
+        var encrStudentType = AesCtr.encrypt(txtStudentType, password, 256);
+        var encrProgram = AesCtr.encrypt(txtProgram, password, 256);
+        var encrYear = AesCtr.encrypt(txtYear, password, 256);
+        var encrGradeAverage = AesCtr.encrypt(txtGradeAverage, password, 256);
+        var encrGPA = AesCtr.encrypt(txtGPA, password, 256);
+        console.log(AesCtr.decrypt(encrGPA, password, 256));
+
+        console.log(encrpassword);
+        console.log(encrDiplomN);
+        console.log(encrDegree);
+        console.log(encrStudentType);
+        console.log(encrProgram);
+        console.log(encrYear);
+        console.log(encrGradeAverage);
+        console.log(encrGPA);
+
+        Diplom.setDiplom(address, encrpassword, encrName, encrDiplomN, encrDegree, encrStudentType, encrProgram,
+                         encrYear, encrGradeAverage, encrGPA, {from: web3.eth.accounts[0], gas:3000000});
+        $("#loader").show();
+      });
+
+      function password_generator(len) {
+           var length = (len)?(len):(10);
+           var string = "abcdefghijklmnopqrstuvwxyz";
+           var numeric = '0123456789';
+           var punctuation = '!@#$%^&*()_+~`|}{[]\:;?><,./-=';
+           var pass = "";
+           var character = "";
+           var crunch = true;
+           while( pass.length<length ) {
+               entity1 = Math.ceil(string.length * Math.random()*Math.random());
+               entity2 = Math.ceil(numeric.length * Math.random()*Math.random());
+               entity3 = Math.ceil(punctuation.length * Math.random()*Math.random());
+               hold = string.charAt( entity1 );
+               hold = (entity1%2==0)?(hold.toUpperCase()):(hold);
+               character += hold;
+               character += numeric.charAt( entity2 );
+               character += punctuation.charAt( entity3 );
+               pass = character;
+           }
+           return pass;
+      }
+
+      function load(){
+        crypt = new JSEncrypt({ default_key_size: 190 });
+        crypt.getKey();
+        pubKey = crypt.getPublicKey();
+        privateKey = crypt.getPrivateKey();
+        password = password_generator(10);
+        console.log(password);
+      }
+      $(document).ready(function(){
+            document.getElementById('address').value = pubKey;
+            document.getElementById('private').value = privateKey;
+      });
+
+      function RSAencrypt (content, publicKey) {
+        crypt.setKey(publicKey)
+        return crypt.encrypt(content)
+      }
+
+      function RSAdecrypt (content) {
+        crypt.setKey(privateKey)
+        return crypt.decrypt(content)
+      }
+    </script>
+  </body>
+</html>

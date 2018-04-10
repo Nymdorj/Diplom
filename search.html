@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <script src="./node_modules/web3/dist/web3.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <!-- <form class="form-horizontal" method="POST" action="loginProcess.php"> -->
+        <h1>Diplom</h1>
+        <h2 id="diplom"></h2>
+        <!-- <img id="loader" src="https://loading.io/spinners/double-ring/lg.double-ring-spinner.gif"> -->
+        <p>Хаягаа оруулна уу.</p>
+        <input id="password" type="text"></input>
+        <p>Хувийн түлхүүрээ оруулна уу.</p>
+        <input id="pk" type="password"></input>
+        <button id="sign">Хайх</button>
+      <!-- </form> -->
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script>
+      if(typeof web3 !== 'undefined'){
+        web3 = new Web3(web3.currentProvider);
+      }else{
+        web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+      }
+
+      web3.eth.defaultAccount = web3.eth.accounts[0];
+
+      var DiplomContract = web3.eth.contract([
+        {
+          "constant": true,
+          "inputs": [],
+          "name": "countDiploms",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "constant": false,
+          "inputs": [
+            {
+              "name": "_address",
+              "type": "bytes32"
+            },
+            {
+              "name": "_password",
+              "type": "bytes32"
+            },
+            {
+              "name": "_fName",
+              "type": "bytes32"
+            },
+            {
+              "name": "_diplomN",
+              "type": "bytes32"
+            },
+            {
+              "name": "_degree",
+              "type": "bytes32"
+            },
+            {
+              "name": "_studentType",
+              "type": "bytes32"
+            },
+            {
+              "name": "_program",
+              "type": "bytes32"
+            },
+            {
+              "name": "_year",
+              "type": "bytes32"
+            },
+            {
+              "name": "_gradeAverage",
+              "type": "bytes32"
+            },
+            {
+              "name": "_gpa",
+              "type": "bytes32"
+            }
+          ],
+          "name": "setDiplom",
+          "outputs": [],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "constant": true,
+          "inputs": [],
+          "name": "getDiploms",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes32[]"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "constant": true,
+          "inputs": [
+            {
+              "name": "_address",
+              "type": "bytes32"
+            }
+          ],
+          "name": "getDiplom",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes32"
+            },
+            {
+              "name": "",
+              "type": "bytes32"
+            },
+            {
+              "name": "",
+              "type": "bytes32"
+            },
+            {
+              "name": "",
+              "type": "bytes32"
+            },
+            {
+              "name": "",
+              "type": "bytes32"
+            },
+            {
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "constant": true,
+          "inputs": [
+            {
+              "name": "_address",
+              "type": "bytes32"
+            }
+          ],
+          "name": "getOwner",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes32"
+            },
+            {
+              "name": "",
+              "type": "bytes32"
+            },
+            {
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "constant": true,
+          "inputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "name": "diplomAccts",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "name",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "name": "password",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "name": "diplomN",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "name": "degree",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "name": "studentType",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "name": "program",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "name": "year",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "name": "gradeAverage",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "name": "gpa",
+              "type": "bytes32"
+            }
+          ],
+          "name": "dEvent",
+          "type": "event"
+        }
+      ]);
+
+      var Diplom = DiplomContract.at('0x3c38c83722bde4e00e25816030699b4ba01bfd18');
+
+      var diplomEvent = Diplom.dEvent();
+
+      $("#sign").click(function(){
+        var result = Diplom.getOwner($("#password").val());
+        if(result){
+          sessionStorage.setItem('pk', $('#pk').val());
+          sessionStorage.setItem('pub', $('#password').val());
+          window.location.href = "file:///home/nyamdorj/ethDiplom/user.html";
+        }else{
+          alert('Хэрэглэгч олдсонгүй!!!')
+        }
+      });
+    </script>
+  </body>
+</html>

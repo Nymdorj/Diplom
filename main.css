@@ -1,0 +1,52 @@
+body{
+  background-color: #F0F0F0;
+  padding: 2em;
+  font-family: 'Raleway','Source Sans Pro', 'Arial';
+  width: 100%;
+  overflow-x: hidden;
+}
+
+#loader{
+  width: 80px;
+  height: 80px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
+#overlay{
+    height: 100%;
+    width: 100%;
+    background: rgba(0, 0, 0, 1);
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+
+.container{
+  width: 50%;
+  margin: 0 auto;
+}
+label{
+  display: block;
+  margin-bottom: 10px;
+}
+input{
+  padding: 10px;
+  width: 50%;
+  margin-bottom: 1em;
+}
+button{
+  margin: 2em 0;
+  padding: 1em 4em;
+  display: block;
+  background-color: #555555;
+}
+#diplom{
+  padding: 1em;
+  background-color: #fff;
+  margin: 1em 0;
+}

@@ -1,0 +1,76 @@
+pragma solidity ^0.4.18;
+
+contract Owned {
+    address owner;
+    
+    function Owned() public {
+        owner = msg.sender;
+    }
+    
+    modifier onlyOwner{
+        require(msg.sender == owner);
+        _;
+    }
+}
+
+contract Diplom is Owned{
+    
+    struct Diplom {
+        bytes32 Password;
+        bytes32 Name;
+        bytes32 DiplomN;
+        bytes32 Degree;
+        bytes32 StudentType;
+        bytes32 Program;
+        bytes32 Year;
+        bytes32 GradeAverage;
+        bytes32 GPA;
+    }
+    
+    mapping (bytes32 => Diplom) diploms;
+    bytes32[] public diplomAccts;
+    
+    event dEvent(
+      bytes32 name,
+      bytes32 password,
+      bytes32 diplomN,
+      bytes32 degree,
+      bytes32 studentType,
+      bytes32 program,
+      bytes32 year,
+      bytes32 gradeAverage,
+      bytes32 gpa
+    );
+    
+    function setDiplom(bytes32 _address, bytes32 _password, bytes32 _fName, bytes32 _diplomN, bytes32 _degree, 
+        bytes32 _studentType, bytes32 _program, bytes32 _year, bytes32 _gradeAverage, bytes32 _gpa) onlyOwner public{
+        var diplom = diploms[_address];
+        diplom.Password = _password;
+        diplom.Name = _fName;
+        diplom.DiplomN = _diplomN;
+        diplom.Degree = _degree;
+        diplom.StudentType = _studentType;
+        diplom.Program = _program;
+        diplom.Year = _year;
+        diplom.GradeAverage = _gradeAverage;
+        diplom.GPA = _gpa;
+        dEvent(_fName, _password, _diplomN, _degree, _studentType, _program, _year, _gradeAverage, _gpa);
+        diplomAccts.push(_address) -1;
+    }
+    
+    function getDiploms() view public returns(bytes32[]){
+        return diplomAccts;
+    }
+    
+    function getOwner(bytes32 _address) view public returns (bytes32, bytes32, bytes32){
+        return (diploms[_address].Name, diploms[_address].DiplomN, diploms[_address].Password);
+    }
+    
+    function getDiplom(bytes32 _address) view public returns (bytes32, bytes32, bytes32, bytes32, bytes32, bytes32){
+        return (diploms[_address].Degree, diploms[_address].StudentType, diploms[_address].Program, diploms[_address].Year, diploms[_address].GradeAverage, diploms[_address].GPA);
+    }
+    
+    function countDiploms() view public returns (uint){
+        return diplomAccts.length;
+    }
+}
