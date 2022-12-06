@@ -15,7 +15,7 @@
     "web3": "github:ethereum/web3.js"
   },
   "devDependencies": {
-    "qs": ">=6.2.3",
+    "qs": ">=6.2.4",
     "lite-server": "^2.3.0"
   }
 }
